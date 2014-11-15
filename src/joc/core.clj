@@ -96,3 +96,22 @@
    :post [(float? %)]} ;; after we assert that the return value is a float.
   (/ (- (p2 1) (p1 1))
      (- (p2 0) (p1 0))))
+
+
+;;; Recursion
+(def simple-metric {:meter 1
+                    :km 1000
+                    :cm 1/100
+                    :mm [1/10 :cm]})
+
+(defn convert [context descriptor]
+  (reduce (fn [result [mag unit]]
+            (+ result
+               (let [val (get context unit)]
+                 (if (vector? val)
+                   (* mag (convert context val))
+                   (* mag val)))))
+          0
+          (partition 2 descriptor)))
+
+(float (convert simple-metric [3 :km 10 :meter 80 :cm 10 :mm]))
